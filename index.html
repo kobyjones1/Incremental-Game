@@ -2,9 +2,200 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title>Clicker</title>
+    <title>Car Clicker</title>
+
+    <style>
+      .sectionLeft{
+        float: left;
+        width: 80%;
+      }
+
+      .sectionRight{
+        float: right;
+        width: 20%;
+      }
+
+      .carContainer{
+        background-color: rgb(238, 238, 238);
+        width: 50%;
+        padding: 10px;
+        border-radius: 10px;
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      .clickerContainer img{
+        position: relative;
+        transition: all .2s ease-in-out;
+      }
+
+      .shopButton{
+        background-color: #b5b5b5;
+        transition: all .2s ease-in-out;
+        border-radius: 10px;
+        width: 100%;
+        margin: 10px 0px 10px 0px;
+      }
+
+      .shopButton:hover{
+        background-color: #c7c7c7;
+        transition: all .2s ease-in-out;
+      }
+
+      .shopButton #image{
+        width: 25%;
+      }
+
+      .shopButton img{
+        height: 64px;
+        width: 64px;
+      }
+
+      .shopButton #nameAndCost p{
+        margin: 0px;
+        width: 60%;
+      }
+
+      .shopButton #nameAndCost p:first-of-type{
+        font-size: 24px;
+      }
+
+      .shopButton #amount{
+        font-size: 48px;
+        color: #595959;
+        font-family: roboto;
+        width: 15%;
+      }
+
+      .sectionFooter{
+        margin-top: 20%;
+      }
+
+      .unselectable{
+        user-select: none;
+      }
+
+      .clickerContainer img:hover{transform: scale(1.10);}
+      .clickerContainer img:active{transform: scale(0.99);}
+    </style>
   </head>
   <body>
-    
+    <div class="sectionLeft">
+      <center>
+        <div class="carContainer unselectable">
+          <span id="cars">0</span> cars<br>
+          <span id="carsPerSecond">0</span> Cars Per Second
+        </div>
+          <br>
+          <div class="clickerContainer unselectable">
+            <img src="car.png" height="256px" width="256px" onclick="addCars(clickPower)">
+          </div>
+      </center>
+    </div>
+
+    <div class="sectionRight unselectable">
+      <table class="shopButton unselectable" onclick="buyCommonCar()">
+        <tr>
+          <td id="image"><img src="common.png"></td>
+          <td id="nameAndCost">
+            <p>Common</p>
+            <p><span id="commonCarCost">15</span> cars</p>
+          </td>
+          <td id="amount"><span id="commonCars">0</span></td>
+        </tr>
+      </table>
+      <table class="shopButton unselectable" onclick="buyLuxuryCar()">
+        <tr>
+          <td id="image"><img src="luxury.png"></td>
+          <td id="nameAndCost">
+            <p>Luxury</p>
+            <p><span id="luxuryCarCost">100</span> cars</p>
+          </td>
+          <td id="amount"><span id="luxuryCars">0</span></td>
+        </tr>
+      </table>
+      <table class="shopButton" onclick="buySuperCar()">
+        <tr>
+          <td id="image"><img src="supercar.png"></td>
+          <td id="nameAndCost">
+            <p>Super Car</p>
+            <p><span id="superCarCost">1000</span> cars</p>
+          </td>
+          <td id="amount"><span id="superCars">0</span></td>
+        </tr>
+      </table>
+    </div>
+
+    <script>
+      var cars = 0;
+      var clickPower = 1;
+
+      var commonCarCost = 15;
+      var commonCars = 0;
+
+      var luxuryCarCost = 100;
+      var luxuryCars = 0;
+
+      var superCarCost = 1000;
+      var superCars = 0;
+
+      function buyCommonCar(){
+        if(cars >= commonCarCost){
+          cars -= commonCarCost;
+          commonCars++;
+          commonCarCost = Math.round(commonCarCost * 1.15);
+
+          document.getElementById("cars").innerHTML = cars;
+          document.getElementById("commonCars").innerHTML = commonCars;
+          document.getElementById("commonCarCost").innerHTML = commonCarCost;
+          updateCarsPerSecond();
+        }
+      }
+
+      function buyLuxuryCar(){
+        if(cars >= luxuryCarCost){
+          cars -= luxuryCarCost;
+          luxuryCars++;
+          luxuryCarCost = Math.round(luxuryCarCost * 1.15);
+
+          document.getElementById("cars").innerHTML = cars;
+          document.getElementById("luxuryCars").innerHTML = luxuryCars;
+          document.getElementById("luxuryCarCost").innerHTML = luxuryCarCost;
+          updateCarsPerSecond();
+        }
+      }
+
+      function buySuperCar(){
+        if(cars >= superCarCost){
+          cars -= superCarCost;
+          superCars++;
+          superCarCost = Math.round(superCarCost * 1.15);
+
+          document.getElementById("cars").innerHTML = cars;
+          document.getElementById("superCars").innerHTML = superCars;
+          document.getElementById("superCarCost").innerHTML = superCarCost;
+          updateCarsPerSecond();
+        }
+      }
+
+      function addCars(amount){
+        cars += amount;
+        document.getElementById("cars").innerHTML = cars;
+      }
+
+      function updateCarsPerSecond(){
+        carsPerSecond = commonCars + (luxuryCars * 5) + (superCars * 70);
+        document.getElementById("carsPerSecond").innerHTML = carsPerSecond;
+      }
+
+      setInterval(function(){
+        cars += commonCars;
+        cars += luxuryCars*5;
+        cars += superCars * 70;
+        document.getElementById("cars").innerHTML = cars;
+
+        document.title = cars + " Cars | Car Clicker";
+      }, 1000);
+    </script>
   </body>
 </html>
