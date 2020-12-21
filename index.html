@@ -90,7 +90,12 @@
           <div class="clickerContainer unselectable">
             <img src="car.png" height="256px" width="256px" onclick="addCars(clickPower)">
           </div>
+          <button onclick="save();">Save Game</button>
       </center>
+      <div class="sectionFooter">
+        <h5>Car Clicker</h5>
+        <button onclick="reset();">Reset</button>
+      </div>
     </div>
 
     <div class="sectionRight unselectable">
@@ -188,14 +193,72 @@
         document.getElementById("carsPerSecond").innerHTML = carsPerSecond;
       }
 
+      function load(){
+          var savedGame = JSON.parse(localStorage.getItem("gameSave"));
+          if (typeof savedGame.cars !== "undefined") cars = savedGame.cars;
+          if (typeof savedGame.clickPower !== "undefined") clickPower = savedGame.clickPower;
+          if (typeof savedGame.commonCarCost !== "undefined") commonCarCost = savedGame.commonCarCost;
+          if (typeof savedGame.commonCars !== "undefined") commonCars = savedGame.commonCars;
+          if (typeof savedGame.luxuryCarCost !== "undefined") luxuryCarCost = savedGame.luxuryCarCost;
+          if (typeof savedGame.luxuryCars !== "undefined") luxuryCars = savedGame.luxuryCars;
+          if (typeof savedGame.superCarCost !== "undefined") superCarCost = savedGame.superCarCost;
+          if (typeof savedGame.superCars !== "undefined") superCars = savedGame.superCars;
+      }
+
+      window.onload = function(){
+        load();
+        updateCarsPerSecond();
+        document.getElementById("cars").innerHTML = cars;
+        document.getElementById("clickPower").innerHTML = clickPower;
+        document.getElementById("commonCarCost").innerHTML = commonCarCost;
+        document.getElementById("commonCars").innerHTML = commonCars;
+        document.getElementById("luxuryCarCost").innerHTML = luxuryCarCost;
+        document.getElementById("luxuryCars").innerHTML = luxuryCars;
+        document.getElementById("superCarCost").innerHTML = superCarCost;
+        document.getElementById("superCars").innerHTML = superCars;
+      };
+
+      function save(){
+          var gameSave = {
+            cars: cars,
+            clickPower: clickPower,
+            commonCarCost: commonCarCost,
+            commonCars: commonCars,
+            luxuryCarCost: luxuryCarCost,
+            luxuryCars: luxuryCars,
+            superCarCost: superCarCost,
+            superCars: superCars
+          };
+          localStorage.setItem("gameSave", JSON.stringify(gameSave));
+      }
+
+      function reset(){
+        if(confirm("Are you sure you want to reset the game?")){
+          var gameSave = {};
+          localStorage.setItem("gameSave", JSON.stringify(gameSave));
+          location.reload();
+        }
+      }
+
       setInterval(function(){
         cars += commonCars;
-        cars += luxuryCars*5;
+        cars += luxuryCars * 5;
         cars += superCars * 70;
         document.getElementById("cars").innerHTML = cars;
 
         document.title = cars + " Cars | Car Clicker";
       }, 1000);
+
+      setInterval(function(){
+        save();
+      }, 30000);
+
+      document.addEventListener("keydown", function(event){
+        if(event.ctrlKey && event.which == 83) {
+          event.preventDefault();
+          save();
+        }
+      }, false);
     </script>
   </body>
 </html>
