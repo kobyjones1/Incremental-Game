@@ -88,9 +88,8 @@
         </div>
           <br>
           <div class="clickerContainer unselectable">
-            <img src="car.png" height="256px" width="256px" onclick="addCars(clickPower)">
+            <img src="car.png" height="256px" width="256px" onclick="game.addToCars(game.clickValue)">
           </div>
-          <button onclick="save();">Save Game</button>
       </center>
       <div class="sectionFooter">
         <h5>Car Clicker</h5>
@@ -98,139 +97,117 @@
       </div>
     </div>
 
-    <div class="sectionRight unselectable">
-      <table class="shopButton unselectable" onclick="buyCommonCar()">
-        <tr>
-          <td id="image"><img src="common.png"></td>
-          <td id="nameAndCost">
-            <p>Common</p>
-            <p><span id="commonCarCost">15</span> cars</p>
-          </td>
-          <td id="amount"><span id="commonCars">0</span></td>
-        </tr>
-      </table>
-      <table class="shopButton unselectable" onclick="buyLuxuryCar()">
-        <tr>
-          <td id="image"><img src="luxury.png"></td>
-          <td id="nameAndCost">
-            <p>Luxury</p>
-            <p><span id="luxuryCarCost">100</span> cars</p>
-          </td>
-          <td id="amount"><span id="luxuryCars">0</span></td>
-        </tr>
-      </table>
-      <table class="shopButton" onclick="buySuperCar()">
-        <tr>
-          <td id="image"><img src="supercar.png"></td>
-          <td id="nameAndCost">
-            <p>Super Car</p>
-            <p><span id="superCarCost">1000</span> cars</p>
-          </td>
-          <td id="amount"><span id="superCars">0</span></td>
-        </tr>
-      </table>
+    <div class="sectionRight" id="shopContainer">
     </div>
 
     <script>
-      var cars = 0;
-      var clickPower = 1;
+      var game = {
+        cars: 0,
+        totalCars: 0,
+        totalClicks: 0,
+        clickValue: 1,
+        version: 0.000,
 
-      var commonCarCost = 15;
-      var commonCars = 0;
+        addToCars: function(amount){
+          this.cars += amount;
+          this.totalCars += amount;
+          display.updateCars();
+        },
 
-      var luxuryCarCost = 100;
-      var luxuryCars = 0;
-
-      var superCarCost = 1000;
-      var superCars = 0;
-
-      function buyCommonCar(){
-        if(cars >= commonCarCost){
-          cars -= commonCarCost;
-          commonCars++;
-          commonCarCost = Math.round(commonCarCost * 1.15);
-
-          document.getElementById("cars").innerHTML = cars;
-          document.getElementById("commonCars").innerHTML = commonCars;
-          document.getElementById("commonCarCost").innerHTML = commonCarCost;
-          updateCarsPerSecond();
+        getCarsPerSecond: function(){
+          var carsPerSecond = 0;
+          for(i = 0; i < building.name.length; i++){
+            carsPerSecond += building.income[i] * building.count[i];
+          }
+          return carsPerSecond;
         }
-      }
+      };
 
-      function buyLuxuryCar(){
-        if(cars >= luxuryCarCost){
-          cars -= luxuryCarCost;
-          luxuryCars++;
-          luxuryCarCost = Math.round(luxuryCarCost * 1.15);
+      var building = {
+          name: [
+            "Common",
+            "Luxury",
+            "Super"
+          ],
+          image: [
+            "common.png",
+            "luxury.png",
+            "supercar.png"
+          ],
+          count: [0,0,0],
+          income: [1,15,155],
+          cost: [100,1000,10000],
 
-          document.getElementById("cars").innerHTML = cars;
-          document.getElementById("luxuryCars").innerHTML = luxuryCars;
-          document.getElementById("luxuryCarCost").innerHTML = luxuryCarCost;
-          updateCarsPerSecond();
+          purchase: function(index){
+            if(game.cars >= this.cost[index]){
+              game.cars -= this.cost[index];
+              this.count[index]++;
+              this.cost[index] = Math.ceil(this.cost[index] * 1.10);
+              display.updateCars();
+              display.updateShop();
+            }
+          }
+      };
+
+      var display = {
+        updateCars: function(){
+          document.getElementById("cars").innerHTML = game.cars;
+          document.getElementById("carsPerSecond").innerHTML = game.getCarsPerSecond();
+          document.title = game.cars + " Cars | Car Clicker";
+        },
+
+        updateShop: function(){
+          document.getElementById("shopContainer").innerHTML = "";
+          for(i = 0; i < building.name.length; i++){
+            document.getElementById("shopContainer").innerHTML += '<table class="shopButton unselectable" onclick="building.purchase('+i+')"><tr><td id="image"><img src='+building.image[i]+'></td><td id="nameAndCost"><p>'+building.name[i]+'</p><p><span>'+building.cost[i]+'</span> cars</p></td><td id="amount"><span>'+building.count[i]+'</span></td></tr></table>';
+          }
         }
-      }
-
-      function buySuperCar(){
-        if(cars >= superCarCost){
-          cars -= superCarCost;
-          superCars++;
-          superCarCost = Math.round(superCarCost * 1.15);
-
-          document.getElementById("cars").innerHTML = cars;
-          document.getElementById("superCars").innerHTML = superCars;
-          document.getElementById("superCarCost").innerHTML = superCarCost;
-          updateCarsPerSecond();
-        }
-      }
-
-      function addCars(amount){
-        cars += amount;
-        document.getElementById("cars").innerHTML = cars;
-      }
-
-      function updateCarsPerSecond(){
-        carsPerSecond = commonCars + (luxuryCars * 5) + (superCars * 70);
-        document.getElementById("carsPerSecond").innerHTML = carsPerSecond;
-      }
-
-      function load(){
-          var savedGame = JSON.parse(localStorage.getItem("gameSave"));
-          if (typeof savedGame.cars !== "undefined") cars = savedGame.cars;
-          if (typeof savedGame.clickPower !== "undefined") clickPower = savedGame.clickPower;
-          if (typeof savedGame.commonCarCost !== "undefined") commonCarCost = savedGame.commonCarCost;
-          if (typeof savedGame.commonCars !== "undefined") commonCars = savedGame.commonCars;
-          if (typeof savedGame.luxuryCarCost !== "undefined") luxuryCarCost = savedGame.luxuryCarCost;
-          if (typeof savedGame.luxuryCars !== "undefined") luxuryCars = savedGame.luxuryCars;
-          if (typeof savedGame.superCarCost !== "undefined") superCarCost = savedGame.superCarCost;
-          if (typeof savedGame.superCars !== "undefined") superCars = savedGame.superCars;
-      }
+      };
 
       window.onload = function(){
         load();
-        updateCarsPerSecond();
-        document.getElementById("cars").innerHTML = cars;
-        document.getElementById("clickPower").innerHTML = clickPower;
-        document.getElementById("commonCarCost").innerHTML = commonCarCost;
-        document.getElementById("commonCars").innerHTML = commonCars;
-        document.getElementById("luxuryCarCost").innerHTML = luxuryCarCost;
-        document.getElementById("luxuryCars").innerHTML = luxuryCars;
-        document.getElementById("superCarCost").innerHTML = superCarCost;
-        document.getElementById("superCars").innerHTML = superCars;
+        display.updateCars();
+        display.updateShop();
       };
 
-      function save(){
+        function save(){
           var gameSave = {
-            cars: cars,
-            clickPower: clickPower,
-            commonCarCost: commonCarCost,
-            commonCars: commonCars,
-            luxuryCarCost: luxuryCarCost,
-            luxuryCars: luxuryCars,
-            superCarCost: superCarCost,
-            superCars: superCars
+            cars: game.cars,
+            totalCars: game.totalCars,
+            totalClicks: game.totalClicks,
+            clickValue: game.clickValue,
+            version: game.version,
+            buildingCount: building.count,
+            buildingIncome: building.income,
+            buildingCost: building.cost
           };
           localStorage.setItem("gameSave", JSON.stringify(gameSave));
-      }
+        }
+
+        function load(){
+          var savedGame = JSON.parse(localStorage.getItem("gameSave"));
+          if(localStorage.getItem("gameSave") !== null){
+            if(typeof savedGame.cars !== "undefined") game.cars = savedGame.cars;
+            if(typeof savedGame.totalCars !== "undefined") game.totalCars = savedGame.totalCars;
+            if(typeof savedGame.totalClicks !== "undefined") game.totalClicks = savedGame.totalClicks;
+            if(typeof savedGame.clickValue !== "undefined") game.clickValue = savedGame.clickValue;
+            if(typeof savedGame.buildingCount !== "undefined"){
+              for(i = 0; i < savedGame.buildingCount.length; i++){
+                building.count[i] = savedGame.buildingCount[i];
+              }
+            }
+            if(typeof savedGame.buildingIncome !== "undefined"){
+              for(i = 0; i < savedGame.buildingIncome.length; i++){
+                building.income[i] = savedGame.buildingIncome[i];
+              }
+            }
+            if(typeof savedGame.buildingCost !== "undefined"){
+              for(i = 0; i < savedGame.buildingCost.length; i++){
+                building.cost[i] = savedGame.buildingCost[i];
+              }
+            }
+          }
+        }
 
       function reset(){
         if(confirm("Are you sure you want to reset the game?")){
@@ -240,10 +217,11 @@
         }
       }
 
+
       setInterval(function(){
-        cars += commonCars;
-        cars += luxuryCars * 5;
-        cars += superCars * 70;
+        game.cars += game.getCarsPerSecond();
+        game.totalCars += game.getCarsPerSecond();
+        display.updateCars();
         document.getElementById("cars").innerHTML = cars;
 
         document.title = cars + " Cars | Car Clicker";
@@ -259,6 +237,7 @@
           save();
         }
       }, false);
+
     </script>
   </body>
 </html>
